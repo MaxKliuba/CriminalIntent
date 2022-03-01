@@ -23,10 +23,6 @@ class CrimeListFragment : Fragment() {
         ViewModelProvider(this)[CrimeListViewModel::class.java]
     }
 
-    companion object {
-        fun newInstance() = CrimeListFragment()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "Total crimes: ${crimeListViewModel.crimes.size}")
@@ -82,7 +78,11 @@ class CrimeListFragment : Fragment() {
     private inner class CrimeAdapter(var crimes: List<Crime>) :
         RecyclerView.Adapter<CrimeHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CrimeHolder {
-            val view = layoutInflater.inflate(R.layout.list_item_crime, parent, false)
+            val layout = when (viewType) {
+                TYPE_SERIOUS -> R.layout.list_item_serious_crime
+                else -> R.layout.list_item_crime
+            }
+            val view = layoutInflater.inflate(layout, parent, false)
             return CrimeHolder(view)
         }
 
@@ -92,5 +92,15 @@ class CrimeListFragment : Fragment() {
         }
 
         override fun getItemCount() = crimes.size
+
+        override fun getItemViewType(position: Int) =
+            if (crimes[position].isSerious) TYPE_SERIOUS else TYPE_LIGHT
+    }
+
+    companion object {
+        private const val TYPE_LIGHT = 0
+        private const val TYPE_SERIOUS = 1
+
+        fun newInstance() = CrimeListFragment()
     }
 }
