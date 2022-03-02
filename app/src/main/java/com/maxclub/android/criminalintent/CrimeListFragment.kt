@@ -1,10 +1,12 @@
 package com.maxclub.android.criminalintent
 
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -12,6 +14,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.text.SimpleDateFormat
+import java.util.*
 
 private const val TAG = "CrimeListFragment"
 
@@ -60,6 +64,7 @@ class CrimeListFragment : Fragment() {
 
         private val titleTextView: TextView = itemView.findViewById(R.id.crime_title)
         private val dateTextView: TextView = itemView.findViewById(R.id.crime_date)
+        private val solvedImageView: ImageView = itemView.findViewById(R.id.crime_solved)
 
         init {
             itemView.setOnClickListener {
@@ -71,18 +76,19 @@ class CrimeListFragment : Fragment() {
         fun bind(crime: Crime) {
             this.crime = crime
             titleTextView.text = crime.title
-            dateTextView.text = crime.date.toString()
+            val timePattern = if (DateFormat.is24HourFormat(context)) "HH:mm" else "hh:mm a"
+            val pattern = "EEEE, MMM dd, yyyy, $timePattern"
+            val simpleDateFormat = SimpleDateFormat(pattern, Locale.getDefault())
+            dateTextView.text = simpleDateFormat.format(crime.date)
+                .replaceFirstChar { it.uppercase() }
+            solvedImageView.visibility = if (crime.isSolved) View.VISIBLE else View.GONE
         }
     }
 
     private inner class CrimeAdapter(var crimes: List<Crime>) :
         RecyclerView.Adapter<CrimeHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CrimeHolder {
-            val layout = when (viewType) {
-                TYPE_SERIOUS -> R.layout.list_item_serious_crime
-                else -> R.layout.list_item_crime
-            }
-            val view = layoutInflater.inflate(layout, parent, false)
+            val view = layoutInflater.inflate(R.layout.list_item_crime, parent, false)
             return CrimeHolder(view)
         }
 
@@ -92,15 +98,9 @@ class CrimeListFragment : Fragment() {
         }
 
         override fun getItemCount() = crimes.size
-
-        override fun getItemViewType(position: Int) =
-            if (crimes[position].isSerious) TYPE_SERIOUS else TYPE_LIGHT
     }
 
     companion object {
-        private const val TYPE_LIGHT = 0
-        private const val TYPE_SERIOUS = 1
-
         fun newInstance() = CrimeListFragment()
     }
 }
