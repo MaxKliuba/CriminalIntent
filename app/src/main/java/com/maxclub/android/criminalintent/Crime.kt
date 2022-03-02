@@ -14,8 +14,6 @@ data class Crime(
     var date: Date = Date(),
     var isSolved: Boolean = false,
 ) {
-    fun getFormattedTitle() = title.replaceFirstChar { it.uppercase() }
-
     fun getFormattedDataTime(context: Context?): String {
         val timePattern = if (DateFormat.is24HourFormat(context)) "HH:mm" else "hh:mm a"
         val pattern = "EEEE, MMM dd, yyyy, $timePattern"

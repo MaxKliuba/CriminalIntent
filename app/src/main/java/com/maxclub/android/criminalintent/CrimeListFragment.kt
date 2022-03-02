@@ -1,5 +1,6 @@
 package com.maxclub.android.criminalintent
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,15 +14,25 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.util.*
 
 private const val TAG = "CrimeListFragment"
 
 class CrimeListFragment : Fragment() {
+    interface Callbacks {
+        fun onCrimeSelected(crimeId: UUID)
+    }
+
+    private var callbacks: Callbacks? = null
     private lateinit var crimeRecyclerView: RecyclerView
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
-
     private val crimeListViewModel: CrimeListViewModel by lazy {
         ViewModelProvider(this)[CrimeListViewModel::class.java]
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
     }
 
     override fun onCreateView(
@@ -55,12 +66,18 @@ class CrimeListFragment : Fragment() {
         }
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+    }
+
     private fun updateUI(crimes: List<Crime>) {
         adapter = CrimeAdapter(crimes)
         crimeRecyclerView.adapter = adapter
     }
 
-    private inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view),
+        View.OnClickListener {
         private lateinit var crime: Crime
 
         private val titleTextView: TextView = itemView.findViewById(R.id.crime_title)
@@ -68,17 +85,18 @@ class CrimeListFragment : Fragment() {
         private val solvedImageView: ImageView = itemView.findViewById(R.id.crime_solved)
 
         init {
-            itemView.setOnClickListener {
-                Toast.makeText(context, "${crime.getFormattedTitle()} pressed!", Toast.LENGTH_SHORT)
-                    .show()
-            }
+            itemView.setOnClickListener(this)
         }
 
         fun bind(crime: Crime) {
             this.crime = crime
-            titleTextView.text = crime.getFormattedTitle()
+            titleTextView.text = crime.title
             dateTextView.text = crime.getFormattedDataTime(context)
             solvedImageView.visibility = if (crime.isSolved) View.VISIBLE else View.GONE
+        }
+
+        override fun onClick(view: View?) {
+            callbacks?.onCrimeSelected(crime.id)
         }
     }
 
