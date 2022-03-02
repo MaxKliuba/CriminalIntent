@@ -1,7 +1,6 @@
 package com.maxclub.android.criminalintent
 
 import android.os.Bundle
-import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,22 +13,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import java.text.SimpleDateFormat
-import java.util.*
 
 private const val TAG = "CrimeListFragment"
 
 class CrimeListFragment : Fragment() {
     private lateinit var crimeRecyclerView: RecyclerView
-    private var adapter: CrimeAdapter? = null
+    private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
 
     private val crimeListViewModel: CrimeListViewModel by lazy {
         ViewModelProvider(this)[CrimeListViewModel::class.java]
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.d(TAG, "Total crimes: ${crimeListViewModel.crimes.size}")
     }
 
     override fun onCreateView(
@@ -39,22 +31,31 @@ class CrimeListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
 
+        val layoutManager = LinearLayoutManager(context)
         crimeRecyclerView = view.findViewById(R.id.crime_recycler_view) as RecyclerView
-        crimeRecyclerView.layoutManager = LinearLayoutManager(context)
+        crimeRecyclerView.layoutManager = layoutManager
         crimeRecyclerView.addItemDecoration(
             DividerItemDecoration(
                 context,
-                LinearLayoutManager.HORIZONTAL
+                layoutManager.orientation
             )
         )
-
-        updateUI()
+        crimeRecyclerView.adapter = adapter
 
         return view
     }
 
-    private fun updateUI() {
-        val crimes = crimeListViewModel.crimes
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        crimeListViewModel.crimeListLiveData.observe(viewLifecycleOwner) { crimes ->
+            crimes?.let {
+                Log.i(TAG, "Got crimes ${crimes.size}")
+                updateUI(crimes)
+            }
+        }
+    }
+
+    private fun updateUI(crimes: List<Crime>) {
         adapter = CrimeAdapter(crimes)
         crimeRecyclerView.adapter = adapter
     }
@@ -68,19 +69,15 @@ class CrimeListFragment : Fragment() {
 
         init {
             itemView.setOnClickListener {
-                Toast.makeText(context, "${crime.title} pressed!", Toast.LENGTH_SHORT)
+                Toast.makeText(context, "${crime.getFormattedTitle()} pressed!", Toast.LENGTH_SHORT)
                     .show()
             }
         }
 
         fun bind(crime: Crime) {
             this.crime = crime
-            titleTextView.text = crime.title
-            val timePattern = if (DateFormat.is24HourFormat(context)) "HH:mm" else "hh:mm a"
-            val pattern = "EEEE, MMM dd, yyyy, $timePattern"
-            val simpleDateFormat = SimpleDateFormat(pattern, Locale.getDefault())
-            dateTextView.text = simpleDateFormat.format(crime.date)
-                .replaceFirstChar { it.uppercase() }
+            titleTextView.text = crime.getFormattedTitle()
+            dateTextView.text = crime.getFormattedDataTime(context)
             solvedImageView.visibility = if (crime.isSolved) View.VISIBLE else View.GONE
         }
     }
