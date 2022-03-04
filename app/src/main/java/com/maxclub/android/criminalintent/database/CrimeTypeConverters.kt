@@ -5,14 +5,14 @@ import java.util.*
 
 class CrimeTypeConverters {
     @TypeConverter
-    fun fromDate(date: Date?) = date?.time
+    fun fromDate(date: Date?): Long? = date?.time
 
     @TypeConverter
-    fun toDate(millisSinceEpoch: Long?) = millisSinceEpoch?.let { Date(it) }
+    fun toDate(millisSinceEpoch: Long?): Date? = millisSinceEpoch?.let { Date(it) }
 
     @TypeConverter
-    fun fromUUID(uuid: UUID?) = uuid?.toString()
+    fun fromUUID(uuid: UUID?): String? = uuid?.toString()
 
     @TypeConverter
-    fun toUUID(uuid: String?) = uuid?.let { UUID.fromString(it) }
+    fun toUUID(uuid: String?): UUID? = UUID.fromString(uuid)
 }
