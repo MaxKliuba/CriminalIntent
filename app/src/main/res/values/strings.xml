@@ -7,4 +7,5 @@
     <string name="crime_state_label">State</string>
     <string name="new_crime">New Crime</string>
     <string name="delete_crime">Delete Crime</string>
+    <string name="empty_list_message">The list is empty</string>
 </resources>

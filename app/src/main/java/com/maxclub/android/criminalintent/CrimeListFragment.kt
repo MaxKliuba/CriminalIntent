@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -20,6 +21,8 @@ class CrimeListFragment : Fragment() {
 
     private var callbacks: Callbacks? = null
     private lateinit var crimeRecyclerView: RecyclerView
+    private lateinit var emptyListStubView: View
+    private lateinit var newCrimeButton: Button
     private var adapter: CrimeAdapter? = CrimeAdapter()
     private val crimeListViewModel: CrimeListViewModel by lazy {
         ViewModelProvider(this)[CrimeListViewModel::class.java]
@@ -42,8 +45,11 @@ class CrimeListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
 
-        val layoutManager = LinearLayoutManager(context)
         crimeRecyclerView = view.findViewById(R.id.crime_recycler_view) as RecyclerView
+        emptyListStubView = view.findViewById(R.id.empty_list_stub) as View
+        newCrimeButton = view.findViewById(R.id.new_crime_button) as Button
+
+        val layoutManager = LinearLayoutManager(context)
         crimeRecyclerView.layoutManager = layoutManager
         crimeRecyclerView.addItemDecoration(
             DividerItemDecoration(
@@ -66,6 +72,13 @@ class CrimeListFragment : Fragment() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        newCrimeButton.setOnClickListener {
+            createNewCrime()
+        }
+    }
+
     override fun onDetach() {
         super.onDetach()
         callbacks = null
@@ -78,10 +91,8 @@ class CrimeListFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
-            R.id.new_crime -> {
-                val crime = Crime()
-                crimeListViewModel.addCrime(crime)
-                callbacks?.onCrimeSelected(crime.id)
+            R.id.new_crime_button -> {
+                createNewCrime()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -89,6 +100,13 @@ class CrimeListFragment : Fragment() {
 
     private fun updateUI(crimes: List<Crime>) {
         (crimeRecyclerView.adapter as CrimeAdapter).setCrimes(crimes)
+        emptyListStubView.visibility = if (crimes.isEmpty()) View.VISIBLE else View.INVISIBLE
+    }
+
+    private fun createNewCrime() {
+        val crime = Crime()
+        crimeListViewModel.addCrime(crime)
+        callbacks?.onCrimeSelected(crime.id)
     }
 
     private inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view),

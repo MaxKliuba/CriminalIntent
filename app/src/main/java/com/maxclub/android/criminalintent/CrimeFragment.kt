@@ -7,7 +7,6 @@ import android.view.*
 import android.widget.Button
 import android.widget.CheckBox
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputEditText
 import java.util.*
