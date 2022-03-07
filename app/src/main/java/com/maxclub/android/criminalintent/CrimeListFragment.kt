@@ -3,16 +3,12 @@ package com.maxclub.android.criminalintent
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import java.util.*
 
 private const val TAG = "CrimeListFragment"
@@ -24,7 +20,7 @@ class CrimeListFragment : Fragment() {
 
     private var callbacks: Callbacks? = null
     private lateinit var crimeRecyclerView: RecyclerView
-    private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
+    private var adapter: CrimeAdapter? = CrimeAdapter()
     private val crimeListViewModel: CrimeListViewModel by lazy {
         ViewModelProvider(this)[CrimeListViewModel::class.java]
     }
@@ -32,6 +28,11 @@ class CrimeListFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callbacks = context as Callbacks?
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -70,9 +71,24 @@ class CrimeListFragment : Fragment() {
         callbacks = null
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_crime_list, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        when (item.itemId) {
+            R.id.new_crime -> {
+                val crime = Crime()
+                crimeListViewModel.addCrime(crime)
+                callbacks?.onCrimeSelected(crime.id)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+
     private fun updateUI(crimes: List<Crime>) {
-        adapter = CrimeAdapter(crimes)
-        crimeRecyclerView.adapter = adapter
+        (crimeRecyclerView.adapter as CrimeAdapter).setCrimes(crimes)
     }
 
     private inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view),
@@ -99,8 +115,20 @@ class CrimeListFragment : Fragment() {
         }
     }
 
-    private inner class CrimeAdapter(var crimes: List<Crime>) :
+    private inner class CrimeAdapter :
         RecyclerView.Adapter<CrimeHolder>() {
+        private var crimes: SortedList<Crime> =
+            SortedList(Crime::class.java, object : SortedListAdapterCallback<Crime>(this) {
+                override fun compare(item1: Crime, item2: Crime): Int =
+                    item2.date.compareTo(item1.date)
+
+                override fun areContentsTheSame(oldItem: Crime, newItem: Crime): Boolean =
+                    oldItem.id == newItem.id
+
+                override fun areItemsTheSame(item1: Crime?, item2: Crime?): Boolean = item1 == item2
+
+            })
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CrimeHolder {
             val view = layoutInflater.inflate(R.layout.list_item_crime, parent, false)
             return CrimeHolder(view)
@@ -111,7 +139,11 @@ class CrimeListFragment : Fragment() {
             holder.bind(crime)
         }
 
-        override fun getItemCount() = crimes.size
+        override fun getItemCount() = crimes.size()
+
+        fun setCrimes(crimes: List<Crime>) {
+            this.crimes.replaceAll(crimes)
+        }
     }
 
     companion object {

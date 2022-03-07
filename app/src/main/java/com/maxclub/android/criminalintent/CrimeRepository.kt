@@ -26,13 +26,21 @@ class CrimeRepository private constructor(context: Context) {
 
     fun updateCrime(crime: Crime) {
         executor.execute {
+            crime.title = crime.title.trim()
             crimeDao.updateCrime(crime)
         }
     }
 
     fun addCrime(crime: Crime) {
         executor.execute {
+            crime.title = crime.title.trim()
             crimeDao.addCrime(crime)
+        }
+    }
+
+    fun deleteCrime(crime: Crime) {
+        executor.execute {
+            crimeDao.deleteCrime(crime)
         }
     }
 
