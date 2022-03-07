@@ -14,11 +14,20 @@ data class Crime(
     var date: Date = Date(),
     var isSolved: Boolean = false,
 ) {
-    fun getFormattedDataTime(context: Context?): String {
-        val timePattern = if (DateFormat.is24HourFormat(context)) "HH:mm" else "hh:mm a"
-        val pattern = "EEEE, MMM dd, yyyy, $timePattern"
+    fun getFormattedDate(): String {
+        val pattern = "EEEE, MMM dd, yyyy"
         val simpleDateFormat = SimpleDateFormat(pattern, Locale.getDefault())
         return simpleDateFormat.format(date)
             .replaceFirstChar { it.uppercase() }
+    }
+
+    fun getFormattedTime(context: Context?): String {
+        val pattern = if (DateFormat.is24HourFormat(context)) "HH:mm" else "hh:mm a"
+        val simpleDateFormat = SimpleDateFormat(pattern, Locale.getDefault())
+        return simpleDateFormat.format(date)
+    }
+
+    fun getFormattedDateTime(context: Context?): String {
+        return "${getFormattedDate()}, ${getFormattedTime(context)}"
     }
 }
