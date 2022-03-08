@@ -66,6 +66,30 @@
             android:layout_height="wrap_content"
             android:text="@string/crime_solved_label" />
 
+        <TextView
+            style="?android:listSeparatorTextViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/suspect_label" />
+
+        <Button
+            android:id="@+id/crime_suspect_button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/crime_suspect_text"
+            app:icon="@drawable/ic_person_add_24" />
+
+        <Button
+            android:id="@+id/crime_report_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="24dp"
+            android:text="@string/crime_report_text"
+            app:icon="@drawable/ic_send_24"
+            app:iconGravity="end" />
+
     </LinearLayout>
 
 </ScrollView>

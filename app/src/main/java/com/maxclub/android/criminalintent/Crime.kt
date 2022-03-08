@@ -13,6 +13,7 @@ data class Crime(
     var title: String = "",
     var date: Date = Date(),
     var isSolved: Boolean = false,
+    var suspect: String = "",
 ) {
     fun getFormattedDate(): String {
         val pattern = "EEEE, MMM dd, yyyy"
