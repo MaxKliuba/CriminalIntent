@@ -3,7 +3,6 @@ package com.maxclub.android.criminalintent
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -12,8 +11,8 @@ import android.text.TextWatcher
 import android.view.*
 import android.widget.Button
 import android.widget.CheckBox
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputEditText
@@ -59,6 +58,7 @@ class CrimeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        (activity as? AppCompatActivity)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         crime = Crime()
         val crimeId: UUID = arguments?.getSerializable(ARG_CRIME_ID) as UUID
@@ -189,6 +189,7 @@ class CrimeFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
+        (activity as? AppCompatActivity)?.supportActionBar?.setDisplayHomeAsUpEnabled(false)
         crimeDetailViewModel.saveCrime(crime)
     }
 
@@ -199,6 +200,10 @@ class CrimeFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
+            android.R.id.home -> {
+                activity?.onBackPressed()
+                true
+            }
             R.id.delete_crime -> {
                 crimeDetailViewModel.deleteCrime(crime)
                 activity?.onBackPressed()
