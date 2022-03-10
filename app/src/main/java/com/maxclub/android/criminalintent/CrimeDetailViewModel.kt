@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import java.io.File
 import java.util.*
 
 class CrimeDetailViewModel : ViewModel() {
@@ -25,4 +26,8 @@ class CrimeDetailViewModel : ViewModel() {
     fun deleteCrime(crime: Crime) {
         crimeRepository.deleteCrime(crime)
     }
+
+    fun getPhotoFile(crime: Crime): File = crimeRepository.getPhotoFile(crime)
+
+    fun deletePhotoFile(crime: Crime): Boolean = crimeRepository.deletePhotoFile(crime)
 }

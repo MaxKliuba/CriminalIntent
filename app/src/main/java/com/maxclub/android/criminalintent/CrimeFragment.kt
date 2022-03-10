@@ -3,34 +3,47 @@ package com.maxclub.android.criminalintent
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputEditText
+import com.squareup.picasso.Picasso
+import java.io.File
 import java.util.*
 
 private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
 private const val TAG_DIALOG_DATE = "DialogDate"
 private const val TAG_DIALOG_TIME = "DialogTime"
+private const val PROVIDER_AUTHORITY = "com.maxclub.android.criminalintent.fileprovider"
 
 class CrimeFragment : Fragment() {
     private lateinit var crime: Crime
+    private lateinit var photoFile: File
+    private lateinit var photoUri: Uri
+
+    private lateinit var photoImageView: ImageView
     private lateinit var titleField: TextInputEditText
     private lateinit var dateButton: Button
     private lateinit var timeButton: Button
     private lateinit var solvedCheckBox: CheckBox
     private lateinit var suspectButton: Button
     private lateinit var reportButton: Button
+
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProvider(this)[CrimeDetailViewModel::class.java]
     }
@@ -55,6 +68,14 @@ class CrimeFragment : Fragment() {
             }
         }
 
+    private val captureImageActivityResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                updatePhotoView(true)
+            }
+            requireActivity().revokeUriPermission(photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -71,6 +92,8 @@ class CrimeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_crime, container, false)
+
+        photoImageView = view.findViewById(R.id.crime_photo) as ImageView
         titleField = view.findViewById(R.id.crime_title) as TextInputEditText
         dateButton = view.findViewById(R.id.crime_date) as Button
         timeButton = view.findViewById(R.id.crime_time) as Button
@@ -86,6 +109,9 @@ class CrimeFragment : Fragment() {
         crimeDetailViewModel.crimeLiveData.observe(viewLifecycleOwner) { crime ->
             crime?.let {
                 this.crime = it
+                photoFile = crimeDetailViewModel.getPhotoFile(it)
+                photoUri =
+                    FileProvider.getUriForFile(requireActivity(), PROVIDER_AUTHORITY, photoFile)
                 updateUI()
             }
         }
@@ -117,7 +143,6 @@ class CrimeFragment : Fragment() {
                 count: Int,
                 after: Int
             ) {
-                //
             }
 
             override fun onTextChanged(
@@ -130,7 +155,6 @@ class CrimeFragment : Fragment() {
             }
 
             override fun afterTextChanged(sequence: Editable?) {
-                //
             }
         }
         titleField.addTextChangedListener(titleWatcher)
@@ -185,12 +209,59 @@ class CrimeFragment : Fragment() {
                 startActivity(chooserIntent)
             }
         }
+
+        photoImageView.apply {
+            val packageManager = requireActivity().packageManager
+
+            val captureImageIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            isEnabled = packageManager.resolveActivity(
+                captureImageIntent,
+                PackageManager.MATCH_DEFAULT_ONLY
+            ) != null
+
+            setOnClickListener {
+                captureImageIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+
+                val cameraActivities: List<ResolveInfo> = packageManager.queryIntentActivities(
+                    captureImageIntent,
+                    PackageManager.MATCH_DEFAULT_ONLY
+                )
+
+                for (cameraActivity in cameraActivities) {
+                    requireActivity().grantUriPermission(
+                        cameraActivity.activityInfo.packageName,
+                        photoUri,
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
+                }
+
+                captureImageActivityResultLauncher.launch(captureImageIntent)
+            }
+
+            setOnLongClickListener {
+                if (crimeDetailViewModel.deletePhotoFile(crime)) {
+                    updatePhotoView()
+                    Toast.makeText(context, R.string.photo_deleted_message, Toast.LENGTH_SHORT)
+                        .show()
+                    true
+                } else false
+            }
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        (activity as? AppCompatActivity)?.supportActionBar?.setDisplayHomeAsUpEnabled(false)
         crimeDetailViewModel.saveCrime(crime)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        (activity as? AppCompatActivity)?.supportActionBar?.setDisplayHomeAsUpEnabled(false)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        requireActivity().revokeUriPermission(photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -224,6 +295,25 @@ class CrimeFragment : Fragment() {
             crime.suspect
         } else {
             getString(R.string.crime_suspect_text)
+        }
+        updatePhotoView()
+    }
+
+    private fun updatePhotoView(force: Boolean = false) {
+        if (photoFile.exists()) {
+            Picasso.get()
+                .apply {
+                    if (force) {
+                        invalidate(photoFile)
+                    }
+                }
+                .load(photoFile)
+                .fit()
+                .centerCrop()
+                .placeholder(R.drawable.ic_photo_24)
+                .into(photoImageView)
+        } else {
+            photoImageView.setImageResource(R.drawable.ic_photo_24)
         }
     }
 

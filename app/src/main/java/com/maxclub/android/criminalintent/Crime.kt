@@ -31,4 +31,7 @@ data class Crime(
     fun getFormattedDateTime(context: Context?): String {
         return "${getFormattedDate()}, ${getFormattedTime(context)}"
     }
+
+    val photoFileMame
+        get() = "IMG_$id.jpg"
 }
