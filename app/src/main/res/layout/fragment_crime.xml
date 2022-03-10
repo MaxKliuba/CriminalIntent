@@ -29,7 +29,8 @@
                     android:id="@+id/crime_photo"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/ic_photo_24" />
+                    android:scaleType="centerCrop"
+                    tools:src="@drawable/ic_photo_24" />
 
             </androidx.cardview.widget.CardView>
 

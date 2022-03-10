@@ -29,6 +29,7 @@ private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
 private const val TAG_DIALOG_DATE = "DialogDate"
 private const val TAG_DIALOG_TIME = "DialogTime"
+private const val TAG_DIALOG_PHOTO = "DialogPhoto"
 private const val PROVIDER_AUTHORITY = "com.maxclub.android.criminalintent.fileprovider"
 
 class CrimeFragment : Fragment() {
@@ -220,22 +221,27 @@ class CrimeFragment : Fragment() {
             ) != null
 
             setOnClickListener {
-                captureImageIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+                if (photoFile.exists()) {
+                    PhotoFragment.newInstance(photoFile.path)
+                        .show(childFragmentManager, TAG_DIALOG_PHOTO)
+                } else {
+                    captureImageIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
 
-                val cameraActivities: List<ResolveInfo> = packageManager.queryIntentActivities(
-                    captureImageIntent,
-                    PackageManager.MATCH_DEFAULT_ONLY
-                )
-
-                for (cameraActivity in cameraActivities) {
-                    requireActivity().grantUriPermission(
-                        cameraActivity.activityInfo.packageName,
-                        photoUri,
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    val cameraActivities: List<ResolveInfo> = packageManager.queryIntentActivities(
+                        captureImageIntent,
+                        PackageManager.MATCH_DEFAULT_ONLY
                     )
-                }
 
-                captureImageActivityResultLauncher.launch(captureImageIntent)
+                    for (cameraActivity in cameraActivities) {
+                        requireActivity().grantUriPermission(
+                            cameraActivity.activityInfo.packageName,
+                            photoUri,
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        )
+                    }
+
+                    captureImageActivityResultLauncher.launch(captureImageIntent)
+                }
             }
 
             setOnLongClickListener {
