@@ -194,6 +194,8 @@ class CrimeFragment : Fragment() {
                 if (crime.suspect.isNotBlank()) {
                     crime.suspect = ""
                     crimeDetailViewModel.saveCrime(crime)
+                    Toast.makeText(context, R.string.suspect_deleted_message, Toast.LENGTH_LONG)
+                        .show()
                     true
                 } else
                     false
