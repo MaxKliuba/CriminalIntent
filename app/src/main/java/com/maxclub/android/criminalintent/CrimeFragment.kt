@@ -25,7 +25,6 @@ import com.squareup.picasso.Picasso
 import java.io.File
 import java.util.*
 
-private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
 private const val TAG_DIALOG_DATE = "DialogDate"
 private const val TAG_DIALOG_TIME = "DialogTime"
@@ -299,9 +298,7 @@ class CrimeFragment : Fragment() {
             isChecked = crime.isSolved
             jumpDrawablesToCurrentState()
         }
-        suspectButton.text = if (crime.suspect.isNotBlank()) {
-            crime.suspect
-        } else {
+        suspectButton.text = crime.suspect.ifBlank {
             getString(R.string.crime_suspect_text)
         }
         updatePhotoView()

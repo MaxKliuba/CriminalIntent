@@ -4,8 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import java.util.*
 
-private const val TAG = "MainActivity"
-
 class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

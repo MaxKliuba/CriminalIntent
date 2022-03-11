@@ -126,12 +126,12 @@ class CrimeListFragment : Fragment() {
             titleTextView.text = crime.title
             dateTextView.text = crime.getFormattedDateTime(context)
             solvedImageView.apply {
-                if (crime.isSolved) {
+                contentDescription = if (crime.isSolved) {
                     setImageResource(R.drawable.ic_solved)
-                    contentDescription = getString(R.string.crime_report_solved)
+                    getString(R.string.crime_report_solved)
                 } else {
                     setImageDrawable(null)
-                    contentDescription = getString(R.string.crime_report_unsolved)
+                    getString(R.string.crime_report_unsolved)
                 }
             }
         }
