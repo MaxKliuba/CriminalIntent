@@ -29,8 +29,9 @@
                     android:id="@+id/crime_photo"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:contentDescription="@string/crime_photo_no_image_description"
                     android:scaleType="centerCrop"
-                    tools:src="@drawable/ic_photo_24" />
+                    tools:srcCompat="@drawable/ic_photo_24" />
 
             </androidx.cardview.widget.CardView>
 
@@ -50,6 +51,7 @@
                     style="?android:listSeparatorTextViewStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:labelFor="@+id/crime_title"
                     android:text="@string/crime_title_label" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -74,6 +76,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:labelFor="@+id/crime_date"
             android:text="@string/crime_datetime_label" />
 
         <Button
@@ -97,6 +100,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:labelFor="@+id/crime_solved"
             android:text="@string/crime_state_label" />
 
         <CheckBox
@@ -110,6 +114,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:labelFor="@+id/crime_suspect_button"
             android:text="@string/suspect_label" />
 
         <Button

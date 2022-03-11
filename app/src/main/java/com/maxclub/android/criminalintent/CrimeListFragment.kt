@@ -100,7 +100,7 @@ class CrimeListFragment : Fragment() {
 
     private fun updateUI(crimes: List<Crime>) {
         (crimeRecyclerView.adapter as CrimeAdapter).setCrimes(crimes)
-        emptyListStubView.visibility = if (crimes.isEmpty()) View.VISIBLE else View.INVISIBLE
+        emptyListStubView.visibility = if (crimes.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun createNewCrime() {
@@ -125,7 +125,15 @@ class CrimeListFragment : Fragment() {
             this.crime = crime
             titleTextView.text = crime.title
             dateTextView.text = crime.getFormattedDateTime(context)
-            solvedImageView.visibility = if (crime.isSolved) View.VISIBLE else View.GONE
+            solvedImageView.apply {
+                if (crime.isSolved) {
+                    setImageResource(R.drawable.ic_solved)
+                    contentDescription = getString(R.string.crime_report_solved)
+                } else {
+                    setImageDrawable(null)
+                    contentDescription = getString(R.string.crime_report_unsolved)
+                }
+            }
         }
 
         override fun onClick(view: View?) {

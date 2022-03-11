@@ -320,8 +320,10 @@ class CrimeFragment : Fragment() {
                 .centerCrop()
                 .placeholder(R.drawable.ic_photo_24)
                 .into(photoImageView)
+            photoImageView.contentDescription = getString(R.string.crime_photo_image_description)
         } else {
             photoImageView.setImageResource(R.drawable.ic_photo_24)
+            photoImageView.contentDescription = getString(R.string.crime_photo_no_image_description)
         }
     }
 

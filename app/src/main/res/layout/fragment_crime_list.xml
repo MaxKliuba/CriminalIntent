@@ -17,7 +17,7 @@
         android:layout_gravity="bottom"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="invisible"
+        android:visibility="gone"
         tools:visibility="visible">
 
         <TextView

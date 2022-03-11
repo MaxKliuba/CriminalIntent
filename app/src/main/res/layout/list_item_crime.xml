@@ -42,9 +42,10 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
+        android:contentDescription="@string/crime_report_unsolved"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_solved" />
+        tools:srcCompat="@drawable/ic_solved" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
